@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <cmath>
 #include <vector>
 #include <set>
@@ -6,6 +7,8 @@
 #include<algorithm>
 #include <map>
 #include <limits>
+#include <string>
+#include <sstream>
 
 double R, a; //initial radius given and the side of a sqare put inside
 
@@ -232,17 +235,81 @@ int main()
     std::vector<Line> edges;
     std::set<Point> vertices;
 
-    Point from(0,0); //read first
-    vertices.insert(from);
-    while(true) //reading
-    {     
-        //read;
-        Point to(0, 0);
-        edges.push_back(Line(&from, &to));
-        vertices.insert(to);
-        from = to;
+
+    std::string dir;
+    std::cout << "Please enter the full directory of the test file\n";
+    std::cin >> dir;
+
+    std::ifstream inputFile(dir);
+
+    Point from; //read first
+    int locator;
+
+    while(true)
+    {
+        inputFile >> dir;
+        locator = dir.find(":");
+        if (locator == -1)
+            continue;
+
+        if (dir[locator - 2] == 's')
+            continue;
+
+        std::stringstream ss;
+
+        if(dir[locator - 2] == 'y')
+        {
+            ss << dir.substr(locator + 2, dir.length() - locator - 2);
+            ss >> from.y;
+            break;
+        }
+
+        if(dir[locator - 2] == 'x')
+        {
+            ss << dir.substr(locator + 2, dir.length() - locator - 3);
+            ss >> from.x;
+        }
+
     }
-    finishCycle(edges, &from); //finish connecting the dots
+    vertices.insert(from);
+
+
+    Point to;
+    while(inputFile >> dir) //reading
+    {     
+
+        locator = dir.find(":");
+        if (locator == -1)
+            continue;
+
+        std::stringstream ss;
+        if (dir[locator - 2] == 's') //radius
+        {
+            ss << dir.substr(locator + 2, dir.length() - locator - 2);
+            ss >> R;
+        }
+
+        if(dir[locator - 2] == 'y')
+        {
+            ss << dir.substr(locator + 2, dir.length() - locator - 2);
+            ss >> to.y;
+
+            edges.push_back(Line(&from, &to));
+            vertices.insert(to);
+            from = to;
+        }
+
+        if(dir[locator - 2] == 'x')
+        {
+            ss << dir.substr(locator + 2, dir.length() - locator - 3);
+            ss >> to.x;
+        }
+
+    }
+
+    a = R * sqrt(2);
+
+    finishCycle(edges, &to); //finish connecting the dots
 
     while(!vertices.empty())
     {
@@ -322,7 +389,8 @@ int main()
         std::vector<Point> inside;
         bool in;
 
-        while (!crossed.empty()) {
+        while (!crossed.empty())
+        {
 
         }
 
